@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Baseball</title>
+</head>
+<body class = "container">
+
+<h1>Baseball</h1>
+<table class = "highlight bordered">
+    <thead>
+    <tr>
+        <th>Rank</th>
+        <th>Teams</th>
+        <th>Owner</th>
+        <th>Wins</th>
+        <th>Losses</th>
+        <th>Pct</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .League}}
+        <tr>
+        <td> {{.Rank}} </td>
+        <td> {{.Name}} </td>
+        <td> {{.Owner}} </td>
+        <td> {{.Wins}} </td>
+        <td> {{.Losses}} </td>
+        <td> {{.Perc}} </td>
+        </tr>
+    {{end}}
+    <tbody>
+</table>
+</body>
+</html>
