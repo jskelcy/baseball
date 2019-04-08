@@ -1,15 +1,19 @@
 package main
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 type fantasyTeam struct {
-	Name   string
-	Owner  string
-	teams  []string
-	Wins   int64
-	Losses int64
-	Perc   string
-	Rank   int
+	Name       string
+	Owner      string
+	teams      []string
+	Wins       int64
+	Losses     int64
+	perc       float64
+	RenderPerc string
+	Rank       int
 }
 
 type league []*fantasyTeam
@@ -19,7 +23,7 @@ func (l *league) Len() int {
 }
 
 func (l *league) Less(i, j int) bool {
-	if (*l)[i].Wins > (*l)[j].Wins {
+	if (*l)[i].perc > (*l)[j].perc {
 		return true
 	}
 	return false
@@ -31,12 +35,32 @@ func (l *league) Swap(i, j int) {
 
 func (l *league) rank() {
 	sort.Sort(l)
+	var currRank int
+	var prevPerc float64
+
 	for i, team := range *l {
-		team.Rank = i + 1
+		if prevPerc != team.perc {
+			currRank = i + 1
+		}
+		team.Rank = currRank
+		prevPerc = team.perc
 	}
 }
 
-// implent sort
+func (l *league) populateScores(mlbScores mlb) {
+	for _, f := range *l {
+		for _, t := range f.teams {
+			f.Wins = f.Wins + mlbScores[t].wins
+			f.Losses = f.Losses + mlbScores[t].losses
+			if f.Losses != 0 {
+				f.perc = float64(f.Wins) / float64(f.Losses+f.Wins)
+			} else {
+				f.perc = 1
+			}
+			f.RenderPerc = fmt.Sprintf("%.3f", f.perc)
+		}
+	}
+}
 
 const (
 	NYY  = "N.Y. Yankees"
@@ -50,7 +74,7 @@ const (
 	LAD  = "L.A. Dodgers"
 	CIN  = "Cincinnati"
 	DE   = "Detroit"
-	HO   = "Houstan"
+	HO   = "Houston"
 	MIL  = "Milwaukee"
 	OAK  = "Oakland"
 	MIN  = "Minnesota"
@@ -67,111 +91,6 @@ const (
 	ATL  = "Atlanta"
 	TB   = "Tampa Bay"
 	AZ   = "Arizona"
-	PITT = "Pittsburg"
+	PITT = "Pittsburgh"
 	KC   = "Kansas City"
 )
-
-func getFantasy() *league {
-	return &league{
-		&fantasyTeam{
-			Name:  "Bobby Bonilla’s $1.2 million",
-			Owner: "Sean",
-			teams: []string{NYY, WA, SL, LAA, CIN, DE},
-		},
-		&fantasyTeam{
-			Name:  "50 Shades of Sonny Gray",
-			Owner: "Harrison",
-			teams: []string{HO, WA, MIL, OAK, CIN, DE},
-		},
-		&fantasyTeam{
-			Name:  "Scrimblet ball",
-			Owner: "Jake",
-			teams: []string{NYY, WA, NYM, OAK, CHIW, MI},
-		},
-		&fantasyTeam{
-			Name:  "Beffballs",
-			Owner: "Beth",
-			teams: []string{HO, NYM, MIL, MIN, CIN, TX},
-		},
-		&fantasyTeam{
-			Name:  "DeGromNomNom",
-			Owner: "Kate",
-			teams: []string{NYY, PHIL, NYM, LAA, SD},
-		},
-		&fantasyTeam{
-			Name:  "Game of Failure",
-			Owner: "Matt",
-			teams: []string{BO, WA, SL, OAK, CIN, SE},
-		},
-		&fantasyTeam{
-			Name:  "Never Order Helmet Nachos",
-			Owner: "Chuck",
-			teams: []string{HO, PHIL, MIL, CO, SD, SE},
-		},
-		&fantasyTeam{
-			Name:  "Luv2bsbl72",
-			Owner: "Lindsay",
-			teams: []string{BA, SL, TO, MIN, SF, DE},
-		},
-		&fantasyTeam{
-			Name:  "a dream Chicken Finger Bucket",
-			Owner: "Marie",
-			teams: []string{NYM, CL, MIL, CO, CHIW, TX},
-		},
-		&fantasyTeam{
-			Name:  "Relief Pitchers",
-			Owner: "Chris",
-			teams: []string{HO, CL, ATL, TB, SD, AZ},
-		},
-		&fantasyTeam{
-			Name:  "Don't know nothin about baseball",
-			Owner: "Keri",
-			teams: []string{LAD, BA, SF, KC, TO, TX},
-		},
-		&fantasyTeam{
-			Name:  "Jobu needs a refill",
-			Owner: "Pat",
-			teams: []string{CL, SL, TB, NYM, PITT, AZ},
-		},
-		&fantasyTeam{
-			Name:  "No glove no love 2",
-			Owner: "Katie",
-			teams: []string{CHIC, SD, MIN, KC, BA, MI},
-		},
-		&fantasyTeam{
-			Name:  "Ultraviolet",
-			Owner: "Ryan",
-			teams: []string{BO, PHIL, ATL, LAA, PITT, AZ},
-		},
-		&fantasyTeam{
-			Name:  "Pedro Serrano",
-			Owner: "Andrew",
-			teams: []string{CL, CHIC, CO, ATL, CHIW, MI},
-		},
-		&fantasyTeam{
-			Name:  "Murfreesboro Tongue Sandwiches",
-			Owner: "Tyler",
-			teams: []string{BO, TO, CHIW, BA, SE, KC},
-		},
-		&fantasyTeam{
-			Name:  "I’m in a nightmare, empty chicken finger bucket",
-			Owner: "Wolan",
-			teams: []string{BO, CHIC, ATL, OAK, SF, PITT},
-		},
-		&fantasyTeam{
-			Name:  "Zookey Burger",
-			Owner: "Carol",
-			teams: []string{LAD, PHIL, TB, CO, SF, SE},
-		},
-		&fantasyTeam{
-			Name:  "wildxbaseball10",
-			Owner: "Lauren",
-			teams: []string{CHIC, LAD, MIN, TB, PITT, AZ},
-		},
-		&fantasyTeam{
-			Name:  "HOME dRUNK",
-			Owner: "Casey",
-			teams: []string{LAA, LAD, KC, TO, DE, TX},
-		},
-	}
-}

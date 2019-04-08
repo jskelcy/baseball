@@ -11,10 +11,10 @@ type record struct {
 	losses int64
 }
 
-type teams map[string]record
+type mlb map[string]record
 
-func getTeams() teams {
-	t := teams{}
+func getMLB() mlb {
+	t := mlb{}
 
 	c := colly.NewCollector(
 		colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"),
