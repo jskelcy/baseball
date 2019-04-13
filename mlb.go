@@ -96,6 +96,7 @@ func getMLBAPI(token string) (mlbStandings, error) {
 
 	for _, team := range rawStandings.Standing {
 		out.Standing[team.FirstName] = team
+		out.Standing[team.TeamID] = team
 	}
 	return out, nil
 }

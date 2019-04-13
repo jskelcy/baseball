@@ -39,7 +39,7 @@ func getFantasyRyan() *winLeague {
 				teams: []string{LAD, WA, ATL, LAA, PITT, KC},
 			},
 			{
-				Name:  "Daiper Doody",
+				Name:  "Diaper Doody",
 				Owner: "Billy",
 				teams: []string{NYY, MIL, NYM, LAA, PITT, CHIW},
 			},
@@ -76,7 +76,7 @@ func getFantasyRyan() *winLeague {
 			{
 				Name:  "Bowman Bombers",
 				Owner: "Russ",
-				teams: []string{PHIL, CL, CHIC, CO, CHIC, TO},
+				teams: []string{PHIL, CL, CHIC, CO, CHIW, TO},
 			},
 		},
 	}
