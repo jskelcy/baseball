@@ -16,29 +16,41 @@ type fantasyTeam struct {
 	Rank       int
 }
 
-type league []*fantasyTeam
-
-func (l *league) Len() int {
-	return len(*l)
+type fantasypctLeague interface {
+	sort.Interface
+	Teams() []*fantasyTeam
+	Rank()
 }
 
-func (l *league) Less(i, j int) bool {
-	if (*l)[i].perc > (*l)[j].perc {
+type pctLeague struct {
+	teams []*fantasyTeam
+}
+
+func (l *pctLeague) Teams() []*fantasyTeam {
+	return l.teams
+}
+
+func (l *pctLeague) Len() int {
+	return len(l.teams)
+}
+
+func (l *pctLeague) Less(i, j int) bool {
+	if l.teams[i].perc > l.teams[j].perc {
 		return true
 	}
 	return false
 }
 
-func (l *league) Swap(i, j int) {
-	(*l)[i], (*l)[j] = (*l)[j], (*l)[i]
+func (l *pctLeague) Swap(i, j int) {
+	l.teams[i], l.teams[j] = l.teams[j], l.teams[i]
 }
 
-func (l *league) rank() {
+func (l *pctLeague) Rank() {
 	sort.Sort(l)
 	var currRank int
 	var prevPerc float64
 
-	for i, team := range *l {
+	for i, team := range l.teams {
 		if prevPerc != team.perc {
 			currRank = i + 1
 		}
@@ -47,11 +59,48 @@ func (l *league) rank() {
 	}
 }
 
-func (l *league) populateScores(mlbScores mlb) {
-	for _, f := range *l {
+type winLeague struct {
+	teams []*fantasyTeam
+}
+
+func (l *winLeague) Teams() []*fantasyTeam {
+	return l.teams
+}
+
+func (l *winLeague) Len() int {
+	return len(l.teams)
+}
+
+func (l *winLeague) Less(i, j int) bool {
+	if l.teams[i].Wins > l.teams[j].Wins {
+		return true
+	}
+	return false
+}
+
+func (l *winLeague) Swap(i, j int) {
+	l.teams[i], l.teams[j] = l.teams[j], l.teams[i]
+}
+
+func (l *winLeague) Rank() {
+	sort.Sort(l)
+	var currRank int
+	var prevWin int64
+
+	for i, team := range l.teams {
+		if prevWin != team.Wins {
+			currRank = i + 1
+		}
+		team.Rank = currRank
+		prevWin = team.Wins
+	}
+}
+
+func populateScores(l fantasypctLeague, mlbScores mlbStandings) {
+	for _, f := range l.Teams() {
 		for _, t := range f.teams {
-			f.Wins = f.Wins + mlbScores[t].wins
-			f.Losses = f.Losses + mlbScores[t].losses
+			f.Wins = f.Wins + mlbScores.Standing[t].Won
+			f.Losses = f.Losses + mlbScores.Standing[t].Lost
 			if f.Losses != 0 {
 				f.perc = float64(f.Wins) / float64(f.Losses+f.Wins)
 			} else {

@@ -6,11 +6,11 @@ import (
 )
 
 type renderWrapper struct {
-	League *league
+	League []*fantasyTeam
 }
 
-func render(l *league, w io.Writer) {
-	wrapper := renderWrapper{League: l}
+func render(l fantasypctLeague, w io.Writer) {
+	wrapper := renderWrapper{League: l.Teams()}
 	tmpl := template.Must(template.ParseFiles("template.html"))
 	tmpl.Execute(w, wrapper)
 }
