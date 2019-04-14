@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -95,7 +93,6 @@ func getMLBAPI(token string) (mlbStandings, error) {
 	}
 
 	for _, team := range rawStandings.Standing {
-		out.Standing[team.FirstName] = team
 		out.Standing[team.TeamID] = team
 	}
 	return out, nil
@@ -104,13 +101,13 @@ func getMLBAPI(token string) (mlbStandings, error) {
 func compressedCall(token string) (mlbAPIStandings, error) {
 	client := &http.Client{}
 	mlbURL, _ := url.Parse("https://erikberg.com/mlb/standings.json")
-	accessHeader := fmt.Sprintf("Bearer %v", token)
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    mlbURL,
 		Header: http.Header{
-			"Authorization":   []string{accessHeader},
 			"Accept-Encoding": []string{"gzip"},
+			"Authorization":   []string{fmt.Sprintf("Bearer %s", token)},
+			"User-Agent":      []string{"MyRobot/1.0 (email@example.com)"},
 		},
 		Close: true,
 	}
@@ -121,17 +118,14 @@ func compressedCall(token string) (mlbAPIStandings, error) {
 		fmt.Printf("error %v\n", err)
 		return out, err
 	}
+	defer resp.Body.Close()
 
 	gz, err := gzip.NewReader(resp.Body)
 	if err != nil {
 		fmt.Printf("error %v\n", err)
 		return out, err
 	}
-	b, err := ioutil.ReadAll(gz)
-	if err != nil {
-		fmt.Printf("error %v\n", err)
-	}
-	decoder := json.NewDecoder(bytes.NewBuffer(b))
+	decoder := json.NewDecoder(gz)
 	err = decoder.Decode(&out)
 	if err != nil {
 		fmt.Printf("error %v\n", err)
