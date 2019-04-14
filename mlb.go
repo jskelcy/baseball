@@ -83,11 +83,11 @@ type mlbAPIStandings struct {
 	Standing      []mlbTeam `json:"standing"`
 }
 
-func getMLBAPI(token string) (mlbStandings, error) {
+func getMLBAPI(token, userAgent string) (mlbStandings, error) {
 	out := mlbStandings{
 		Standing: make(map[string]mlbTeam),
 	}
-	rawStandings, err := compressedCall(token)
+	rawStandings, err := compressedCall(token, userAgent)
 	if err != nil {
 		return out, nil
 	}
@@ -98,8 +98,7 @@ func getMLBAPI(token string) (mlbStandings, error) {
 	return out, nil
 }
 
-func compressedCall(token string) (mlbAPIStandings, error) {
-	client := &http.Client{}
+func compressedCall(token, UserAgent string) (mlbAPIStandings, error) {
 	mlbURL, _ := url.Parse("https://erikberg.com/mlb/standings.json")
 	req := &http.Request{
 		Method: http.MethodGet,
@@ -107,13 +106,13 @@ func compressedCall(token string) (mlbAPIStandings, error) {
 		Header: http.Header{
 			"Accept-Encoding": []string{"gzip"},
 			"Authorization":   []string{fmt.Sprintf("Bearer %s", token)},
-			"User-Agent":      []string{"MyRobot/1.0 (email@example.com)"},
+			"User-Agent":      []string{UserAgent},
 		},
 		Close: true,
 	}
 
 	out := mlbAPIStandings{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Printf("error %v\n", err)
 		return out, err
