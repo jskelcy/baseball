@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
-
-	"github.com/gocolly/colly"
 )
 
 type mlbTeam struct {
@@ -48,34 +45,6 @@ type mlbTeam struct {
 type mlbStandings struct {
 	StandingsDate string
 	Standing      map[string]mlbTeam
-}
-
-func getMLBScraped() mlbStandings {
-	t := mlbStandings{
-		Standing: make(map[string]mlbTeam),
-	}
-
-	c := colly.NewCollector(
-		colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"),
-	)
-	c.OnHTML("tr", func(e *colly.HTMLElement) {
-		e.ForEach("td", func(_ int, el *colly.HTMLElement) {
-			attr := el.Attr("data-label")
-			switch attr {
-			case "Team":
-				var wins, _ = strconv.ParseInt(e.ChildText(`[data-label="Wins"]`), 10, 32)
-				var losses, _ = strconv.ParseInt(e.ChildText(`[data-label="Losses"]`), 10, 32)
-				r := mlbTeam{
-					Won:  wins,
-					Lost: losses,
-				}
-				t.Standing[el.Text] = r
-			}
-		})
-	})
-
-	c.Visit("https://erikberg.com/mlb/standings")
-	return t
 }
 
 type mlbAPIStandings struct {

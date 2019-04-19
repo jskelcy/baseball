@@ -28,6 +28,7 @@ type server struct {
 func (s *server) helloWorld(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.WriteHeader(http.StatusAccepted)
 
 	if _, err := w.Write([]byte("hello max")); err != nil {
