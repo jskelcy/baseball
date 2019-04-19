@@ -2,7 +2,7 @@ package main
 
 func getFantasyRyan() *winLeague {
 	return &winLeague{
-		teams: []*fantasyTeam{
+		Teams: []*fantasyTeam{
 			{
 				Name:  "Thudbutt",
 				Owner: "Manso",

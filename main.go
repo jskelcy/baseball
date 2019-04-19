@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -47,9 +48,13 @@ func (s *server) chrisHandler(w http.ResponseWriter, r *http.Request) {
 
 	populateScores(leagueStandings, mlb)
 	leagueStandings.Rank()
-	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusAccepted)
-	render(leagueStandings, w)
+
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(leagueStandings); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (s *server) ryanHandler(w http.ResponseWriter, r *http.Request) {

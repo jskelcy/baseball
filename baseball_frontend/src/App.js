@@ -31,34 +31,39 @@ class App extends Component {
   }
 }
 
-const BaseballTable = props => (
-  <div>
-    <h1>Baseball</h1>
-    <table className="highlight bordered">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Teams</th>
-          <th>Owner</th>
-          <th>Wins</th>
-          <th>Losses</th>
-          <th>Pct</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* {{range .League}}
-        <tr>
-        <td> {{.Rank}} </td>
-        <td> {{.Name}} </td>
-        <td> {{.Owner}} </td>
-        <td> {{.Wins}} </td>
-        <td> {{.Losses}} </td>
-        <td> {{.RenderPerc}} </td>
-        </tr>
-    {{end}} */}
-      </tbody>
-    </table>
-  </div>
-);
+
+  class BaseballTable extends Component {
+    render {
+      return (
+        <div>
+          <h1>Baseball</h1>
+          <table className="highlight bordered">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Teams</th>
+                <th>Owner</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>Pct</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* {{range .League}}
+              <tr>
+              <td> {{.Rank}} </td>
+              <td> {{.Name}} </td>
+              <td> {{.Owner}} </td>
+              <td> {{.Wins}} </td>
+              <td> {{.Losses}} </td>
+              <td> {{.RenderPerc}} </td>
+              </tr>
+          {{end}} */}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+  }
 
 export default App;

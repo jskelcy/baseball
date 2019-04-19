@@ -6,43 +6,43 @@ import (
 )
 
 type fantasyTeam struct {
-	Name       string
-	Owner      string
-	teams      []string
-	Wins       int64
-	Losses     int64
-	perc       float64
-	RenderPerc string
-	Rank       int
+	Name       string   `json:"name"`
+	Owner      string   `json:"owner"`
+	teams      []string `json:"teams"`
+	Wins       int64    `json:"wins"`
+	Losses     int64    `json:"losses"`
+	perc       float64  `json:"perc"`
+	RenderPerc string   `json:"renderPerc"`
+	Rank       int      `json:"rank"`
 }
 
 type fantasypctLeague interface {
 	sort.Interface
-	Teams() []*fantasyTeam
+	GetTeams() []*fantasyTeam
 	Rank()
 }
 
 type pctLeague struct {
-	teams []*fantasyTeam
+	Teams []*fantasyTeam `json:"teams"`
 }
 
-func (l *pctLeague) Teams() []*fantasyTeam {
-	return l.teams
+func (l *pctLeague) GetTeams() []*fantasyTeam {
+	return l.Teams
 }
 
 func (l *pctLeague) Len() int {
-	return len(l.teams)
+	return len(l.Teams)
 }
 
 func (l *pctLeague) Less(i, j int) bool {
-	if l.teams[i].perc > l.teams[j].perc {
+	if l.Teams[i].perc > l.Teams[j].perc {
 		return true
 	}
 	return false
 }
 
 func (l *pctLeague) Swap(i, j int) {
-	l.teams[i], l.teams[j] = l.teams[j], l.teams[i]
+	l.Teams[i], l.Teams[j] = l.Teams[j], l.Teams[i]
 }
 
 func (l *pctLeague) Rank() {
@@ -50,7 +50,7 @@ func (l *pctLeague) Rank() {
 	var currRank int
 	var prevPerc float64
 
-	for i, team := range l.teams {
+	for i, team := range l.Teams {
 		if prevPerc != team.perc {
 			currRank = i + 1
 		}
@@ -60,26 +60,26 @@ func (l *pctLeague) Rank() {
 }
 
 type winLeague struct {
-	teams []*fantasyTeam
+	Teams []*fantasyTeam `json:"teams"`
 }
 
-func (l *winLeague) Teams() []*fantasyTeam {
-	return l.teams
+func (l *winLeague) GetTeams() []*fantasyTeam {
+	return l.Teams
 }
 
 func (l *winLeague) Len() int {
-	return len(l.teams)
+	return len(l.Teams)
 }
 
 func (l *winLeague) Less(i, j int) bool {
-	if l.teams[i].Wins > l.teams[j].Wins {
+	if l.Teams[i].Wins > l.Teams[j].Wins {
 		return true
 	}
 	return false
 }
 
 func (l *winLeague) Swap(i, j int) {
-	l.teams[i], l.teams[j] = l.teams[j], l.teams[i]
+	l.Teams[i], l.Teams[j] = l.Teams[j], l.Teams[i]
 }
 
 func (l *winLeague) Rank() {
@@ -87,7 +87,7 @@ func (l *winLeague) Rank() {
 	var currRank int
 	var prevWin int64
 
-	for i, team := range l.teams {
+	for i, team := range l.Teams {
 		if prevWin != team.Wins {
 			currRank = i + 1
 		}
@@ -97,7 +97,7 @@ func (l *winLeague) Rank() {
 }
 
 func populateScores(l fantasypctLeague, mlbScores mlbStandings) {
-	for _, f := range l.Teams() {
+	for _, f := range l.GetTeams() {
 		for _, t := range f.teams {
 			f.Wins = f.Wins + mlbScores.Standing[t].Won
 			f.Losses = f.Losses + mlbScores.Standing[t].Lost
