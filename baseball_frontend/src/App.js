@@ -13,7 +13,7 @@ class App extends Component {
     this.setState({ loading: true });
     // TODO: this should probabl get
     // configured via environment vars
-    const data = await axios.get("http://localhost:8080/hello-world", {
+    const { data } = await axios.get("http://localhost:8080/", {
       headers: { "Access-Control-Allow-Origin": "*" }
     });
     console.log({ data });
@@ -31,39 +31,38 @@ class App extends Component {
   }
 }
 
-
-  class BaseballTable extends Component {
-    render {
-      return (
-        <div>
-          <h1>Baseball</h1>
-          <table className="highlight bordered">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Teams</th>
-                <th>Owner</th>
-                <th>Wins</th>
-                <th>Losses</th>
-                <th>Pct</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* {{range .League}}
+class BaseballTable extends Component {
+  render() {
+    return (
+      <div>
+        <h1>Baseball</h1>
+        <table className="highlight bordered">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Teams</th>
+              <th>Owner</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Pct</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* {{range .League}}
               <tr>
               <td> {{.Rank}} </td>
               <td> {{.Name}} </td>
               <td> {{.Owner}} </td>
               <td> {{.Wins}} </td>
               <td> {{.Losses}} </td>
-              <td> {{.RenderPerc}} </td>
+              <td> {{.Perc}} </td>
               </tr>
           {{end}} */}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
+          </tbody>
+        </table>
+      </div>
+    );
   }
+}
 
 export default App;

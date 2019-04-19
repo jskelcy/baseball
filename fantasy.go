@@ -6,14 +6,16 @@ import (
 )
 
 type fantasyTeam struct {
-	Name       string   `json:"name"`
-	Owner      string   `json:"owner"`
-	teams      []string `json:"teams"`
-	Wins       int64    `json:"wins"`
-	Losses     int64    `json:"losses"`
-	perc       float64  `json:"perc"`
-	RenderPerc string   `json:"renderPerc"`
-	Rank       int      `json:"rank"`
+	teams []string
+	perc  float64
+
+	Name   string    `json:"name"`
+	Owner  string    `json:"owner"`
+	Wins   int64     `json:"wins"`
+	Losses int64     `json:"losses"`
+	Perc   string    `json:"Perc"`
+	Rank   int       `json:"rank"`
+	Teams  []mlbTeam `json:"Teams"`
 }
 
 type fantasypctLeague interface {
@@ -106,7 +108,8 @@ func populateScores(l fantasypctLeague, mlbScores mlbStandings) {
 			} else {
 				f.perc = 1
 			}
-			f.RenderPerc = fmt.Sprintf("%.3f", f.perc)
+			f.Teams = append(f.Teams, mlbScores.Standing[t])
+			f.Perc = fmt.Sprintf("%.3f", f.perc)
 		}
 	}
 }
