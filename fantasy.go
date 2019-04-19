@@ -13,9 +13,9 @@ type fantasyTeam struct {
 	Owner  string    `json:"owner"`
 	Wins   int64     `json:"wins"`
 	Losses int64     `json:"losses"`
-	Perc   string    `json:"Perc"`
+	Perc   string    `json:"perc"`
 	Rank   int       `json:"rank"`
-	Teams  []mlbTeam `json:"Teams"`
+	Teams  []mlbTeam `json:"teams"`
 }
 
 type fantasypctLeague interface {

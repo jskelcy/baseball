@@ -19,6 +19,43 @@
   color: white;
 }
 
+i {
+  /* font-size: 24px; */
+  display: inline-block;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes twist-up {
+  to {
+    transform: rotateX(360deg);
+  }
+}
+
+/* td.container > div {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+td.container {
+  height: 20px;
+} */
+
+.expanded-row {
+  background-color: rgba(242, 242, 242, 0.5);
+
+  /* max-height: 20px; */
+}
+
+.expanded-row td {
+  padding: 2px;
+}
+
 .App-link {
   color: #61dafb;
 }

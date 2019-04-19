@@ -15,10 +15,9 @@ func main() {
 	fmt.Println(s.apiKey)
 	fmt.Println(s.userAgent)
 
-	http.HandleFunc("/hello-world", s.helloWorld)
 	http.HandleFunc("/", s.chrisHandler)
 	http.HandleFunc("/CORK", s.ryanHandler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8081", nil)
 }
 
 type server struct {
@@ -26,50 +25,70 @@ type server struct {
 	userAgent string
 }
 
-func (s *server) helloWorld(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
+func setHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
+}
 
-	if _, err := w.Write([]byte("hello max")); err != nil {
-		println(err)
+func sendErr(w http.ResponseWriter, err error) {
+	respBody := responseBody{
+		Status: http.StatusInternalServerError,
+		Error:  err.Error(),
 	}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(respBody); err != nil {
+		fmt.Println(err)
+	}
+}
 
+type responseBody struct {
+	Status int            `json:"status"`
+	Error  string         `json:"error"`
+	Teams  []*fantasyTeam `json:"teams"`
 }
 
 func (s *server) chrisHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 	leagueStandings := getFantasyChris()
 	mlb, err := getMLBAPI(s.apiKey, s.userAgent)
 	if err != nil {
-		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		sendErr(w, err)
 		return
 	}
 
 	populateScores(leagueStandings, mlb)
 	leagueStandings.Rank()
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.WriteHeader(http.StatusAccepted)
 
+	respBody := responseBody{
+		Status: http.StatusOK,
+		Teams:  leagueStandings.Teams,
+	}
 	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(leagueStandings); err != nil {
+	if err := encoder.Encode(respBody); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func (s *server) ryanHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 	leagueStandings := getFantasyRyan()
 	mlb, err := getMLBAPI(s.apiKey, s.userAgent)
 	if err != nil {
-		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		sendErr(w, err)
 		return
 	}
 
 	populateScores(leagueStandings, mlb)
 	leagueStandings.Rank()
-	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
-	w.WriteHeader(http.StatusAccepted)
-	render(leagueStandings, w)
+
+	respBody := responseBody{
+		Status: http.StatusOK,
+		Teams:  leagueStandings.Teams,
+	}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(respBody); err != nil {
+		fmt.Println(err)
+	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -58,7 +59,7 @@ func getMLBAPI(token, userAgent string) (mlbStandings, error) {
 	}
 	rawStandings, err := compressedCall(token, userAgent)
 	if err != nil {
-		return out, nil
+		return out, err
 	}
 
 	for _, team := range rawStandings.Standing {
@@ -88,6 +89,9 @@ func compressedCall(token, UserAgent string) (mlbAPIStandings, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return out, errors.New("cool your jets for a moment and try again")
+	}
 	gz, err := gzip.NewReader(resp.Body)
 	if err != nil {
 		fmt.Printf("error %v\n", err)
