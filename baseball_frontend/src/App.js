@@ -69,15 +69,13 @@ class BaseballTable extends Component {
   };
 
   render() {
-    console.log(this.props);
     const { rows } = this.state;
 
     return (
       <div>
         <img src={baseball} alt="dank_baseball" />
         <h1>
-          <i className="App-logo">⚾</i> Baseball{" "}
-          <i className="App-logo"> ⚾</i>
+          <span>⚾</span> Baseball <span> ⚾</span>
         </h1>
         <table className="highlight bordered">
           <thead>

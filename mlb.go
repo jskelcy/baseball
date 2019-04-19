@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type mlbTeam struct {
@@ -52,20 +53,49 @@ type mlbAPIStandings struct {
 	StandingsDate string    `json:"standings_date"`
 	Standing      []mlbTeam `json:"standing"`
 }
+type mlbClient struct {
+	token         string
+	userAgent     string
+	currStandings mlbStandings
+}
 
-func getMLBAPI(token, userAgent string) (mlbStandings, error) {
+func (m *mlbClient) getMLBStandings() mlbStandings {
+	return m.currStandings
+}
+
+func (m *mlbClient) Init() {
+	if err := m.refreshCache(); err != nil {
+		fmt.Printf("error initializing cache (will retry) %v", err)
+	}
+	fmt.Println("cache initialized")
+	t := time.NewTicker(time.Minute * 5)
+
+	go func() {
+		for {
+			<-t.C
+			if err := m.refreshCache(); err != nil {
+				fmt.Printf("error refreshing cache %v", err)
+			}
+			fmt.Println("updated cache")
+		}
+	}()
+}
+
+func (m *mlbClient) refreshCache() error {
 	out := mlbStandings{
 		Standing: make(map[string]mlbTeam),
 	}
-	rawStandings, err := compressedCall(token, userAgent)
+	rawStandings, err := compressedCall(m.token, m.userAgent)
 	if err != nil {
-		return out, err
+		return err
 	}
 
 	for _, team := range rawStandings.Standing {
 		out.Standing[team.TeamID] = team
 	}
-	return out, nil
+
+	m.currStandings = out
+	return nil
 }
 
 func compressedCall(token, UserAgent string) (mlbAPIStandings, error) {

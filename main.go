@@ -8,21 +8,26 @@ import (
 )
 
 func main() {
-	s := server{
-		apiKey:    os.Getenv("TOKEN"),
-		userAgent: os.Getenv("USER_AGENT"),
-	}
-	fmt.Println(s.apiKey)
-	fmt.Println(s.userAgent)
+	apiKey := os.Getenv("TOKEN")
+	userAgent := os.Getenv("USER_AGENT")
+	fmt.Println(apiKey)
+	fmt.Println(userAgent)
 
+	client := &mlbClient{
+		token:     apiKey,
+		userAgent: userAgent,
+	}
+	client.Init()
+	s := server{
+		mlbClient: client,
+	}
 	http.HandleFunc("/", s.chrisHandler)
 	http.HandleFunc("/CORK", s.ryanHandler)
-	http.ListenAndServe(":8081", nil)
+	fmt.Println(http.ListenAndServe(":8081", nil))
 }
 
 type server struct {
-	apiKey    string
-	userAgent string
+	mlbClient *mlbClient
 }
 
 func setHeaders(w http.ResponseWriter) {
@@ -52,11 +57,7 @@ type responseBody struct {
 func (s *server) chrisHandler(w http.ResponseWriter, r *http.Request) {
 	setHeaders(w)
 	leagueStandings := getFantasyChris()
-	mlb, err := getMLBAPI(s.apiKey, s.userAgent)
-	if err != nil {
-		sendErr(w, err)
-		return
-	}
+	mlb := s.mlbClient.getMLBStandings()
 
 	populateScores(leagueStandings, mlb)
 	leagueStandings.Rank()
@@ -74,11 +75,7 @@ func (s *server) chrisHandler(w http.ResponseWriter, r *http.Request) {
 func (s *server) ryanHandler(w http.ResponseWriter, r *http.Request) {
 	setHeaders(w)
 	leagueStandings := getFantasyRyan()
-	mlb, err := getMLBAPI(s.apiKey, s.userAgent)
-	if err != nil {
-		sendErr(w, err)
-		return
-	}
+	mlb := s.mlbClient.getMLBStandings()
 
 	populateScores(leagueStandings, mlb)
 	leagueStandings.Rank()
