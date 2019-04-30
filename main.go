@@ -21,7 +21,10 @@ func main() {
 	s := server{
 		mlbClient: client,
 	}
-	http.HandleFunc("/", s.chrisHandler)
+
+	fs := http.FileServer(http.Dir("./baseball_frontend/build/"))
+	http.Handle("/", fs)
+	http.HandleFunc("/CHRIS", s.chrisHandler)
 	http.HandleFunc("/CORK", s.ryanHandler)
 	fmt.Println(http.ListenAndServe(":8081", nil))
 }
