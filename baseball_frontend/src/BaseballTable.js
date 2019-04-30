@@ -16,7 +16,6 @@ class BaseballTable extends Component {
 
     return (
       <div>
-        <img src={baseball} alt="dank_baseball" />
         <h1>
           <span>⚾</span> Baseball <span> ⚾</span>
         </h1>
@@ -44,7 +43,7 @@ class BaseballTable extends Component {
                 </tr>
                 {team.expanded &&
                   team.teams.map(team => (
-                    <tr className="expanded-row">
+                    <tr key={team.id} className="expanded-row">
                       <td>
                         <div />
                       </td>
