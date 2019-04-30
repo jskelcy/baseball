@@ -15,7 +15,7 @@ class App extends Component {
     // TODO: this should probabl get
     // configured via environment vars
     const response = await axios
-      .get("http://localhost:8081/", {
+      .get("http://localhost:8081/CHRIS", {
         headers: { "Access-Control-Allow-Origin": "*" }
       })
       .catch(error => {
