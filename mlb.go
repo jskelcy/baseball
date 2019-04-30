@@ -3,12 +3,11 @@ package main
 import (
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
-
-	"github.com/gocolly/colly"
+	"time"
 )
 
 type mlbTeam struct {
@@ -50,52 +49,53 @@ type mlbStandings struct {
 	Standing      map[string]mlbTeam
 }
 
-func getMLBScraped() mlbStandings {
-	t := mlbStandings{
-		Standing: make(map[string]mlbTeam),
-	}
-
-	c := colly.NewCollector(
-		colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"),
-	)
-	c.OnHTML("tr", func(e *colly.HTMLElement) {
-		e.ForEach("td", func(_ int, el *colly.HTMLElement) {
-			attr := el.Attr("data-label")
-			switch attr {
-			case "Team":
-				var wins, _ = strconv.ParseInt(e.ChildText(`[data-label="Wins"]`), 10, 32)
-				var losses, _ = strconv.ParseInt(e.ChildText(`[data-label="Losses"]`), 10, 32)
-				r := mlbTeam{
-					Won:  wins,
-					Lost: losses,
-				}
-				t.Standing[el.Text] = r
-			}
-		})
-	})
-
-	c.Visit("https://erikberg.com/mlb/standings")
-	return t
-}
-
 type mlbAPIStandings struct {
 	StandingsDate string    `json:"standings_date"`
 	Standing      []mlbTeam `json:"standing"`
 }
+type mlbClient struct {
+	token         string
+	userAgent     string
+	currStandings mlbStandings
+}
 
-func getMLBAPI(token, userAgent string) (mlbStandings, error) {
+func (m *mlbClient) getMLBStandings() mlbStandings {
+	return m.currStandings
+}
+
+func (m *mlbClient) Init() {
+	if err := m.refreshCache(); err != nil {
+		fmt.Printf("error initializing cache (will retry) %v", err)
+	}
+	fmt.Println("cache initialized")
+	t := time.NewTicker(time.Minute * 5)
+
+	go func() {
+		for {
+			<-t.C
+			if err := m.refreshCache(); err != nil {
+				fmt.Printf("error refreshing cache %v", err)
+			}
+			fmt.Println("updated cache")
+		}
+	}()
+}
+
+func (m *mlbClient) refreshCache() error {
 	out := mlbStandings{
 		Standing: make(map[string]mlbTeam),
 	}
-	rawStandings, err := compressedCall(token, userAgent)
+	rawStandings, err := compressedCall(m.token, m.userAgent)
 	if err != nil {
-		return out, nil
+		return err
 	}
 
 	for _, team := range rawStandings.Standing {
 		out.Standing[team.TeamID] = team
 	}
-	return out, nil
+
+	m.currStandings = out
+	return nil
 }
 
 func compressedCall(token, UserAgent string) (mlbAPIStandings, error) {
@@ -119,6 +119,9 @@ func compressedCall(token, UserAgent string) (mlbAPIStandings, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return out, errors.New("cool your jets for a moment and try again")
+	}
 	gz, err := gzip.NewReader(resp.Body)
 	if err != nil {
 		fmt.Printf("error %v\n", err)

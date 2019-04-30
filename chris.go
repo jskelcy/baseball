@@ -2,7 +2,7 @@ package main
 
 func getFantasyChris() *pctLeague {
 	return &pctLeague{
-		teams: []*fantasyTeam{
+		Teams: []*fantasyTeam{
 			{
 				Name:  "Bobby Bonilla’s $1.2 million",
 				Owner: "Sean",
