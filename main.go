@@ -25,7 +25,6 @@ func main() {
 	fs := http.FileServer(http.Dir("./baseball_frontend/build/"))
 	http.Handle("/", fs)
 	http.HandleFunc("/CHRIS", s.chrisHandler)
-	http.HandleFunc("/CORK", s.ryanHandler)
 	fmt.Println(http.ListenAndServe(":8081", nil))
 }
 
@@ -60,24 +59,6 @@ type responseBody struct {
 func (s *server) chrisHandler(w http.ResponseWriter, r *http.Request) {
 	setHeaders(w)
 	leagueStandings := getFantasyChris()
-	mlb := s.mlbClient.getMLBStandings()
-
-	populateScores(leagueStandings, mlb)
-	leagueStandings.Rank()
-
-	respBody := responseBody{
-		Status: http.StatusOK,
-		Teams:  leagueStandings.Teams,
-	}
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(respBody); err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (s *server) ryanHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
-	leagueStandings := getFantasyRyan()
 	mlb := s.mlbClient.getMLBStandings()
 
 	populateScores(leagueStandings, mlb)
